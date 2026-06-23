@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "147990115601",
+    "project_id": "azure-standard",
+    "storage_bucket": "azure-standard.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:147990115601:android:c4b185c6aa5594fa5e48b0",
+        "android_client_info": {
+          "package_name": "com.atsumilabs.azurestandard"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUo4xdlMbxmnyXlcmqpTT4bVYEqB_8NJM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

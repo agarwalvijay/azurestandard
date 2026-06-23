@@ -1,0 +1,63 @@
+:root {
+  --brand-bg: #ffffff;
+  --brand-ink: #1f3d2b;     /* Azure Standard deep green */
+  --brand-accent: #6a8f3c;  /* leaf green accent */
+  --muted: #7c8a80;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--brand-bg);
+  color: var(--brand-ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.splash {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: env(safe-area-inset-top) 24px env(safe-area-inset-bottom);
+  text-align: center;
+}
+
+.logo {
+  width: 132px;
+  height: 132px;
+  object-fit: contain;
+  animation: rise 600ms ease-out both;
+}
+
+.wordmark {
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  font-size: 15px;
+  color: var(--brand-ink);
+}
+
+.spinner {
+  width: 26px;
+  height: 26px;
+  margin-top: 6px;
+  border: 3px solid rgba(106, 143, 60, 0.25);
+  border-top-color: var(--brand-accent);
+  border-radius: 50%;
+  animation: spin 800ms linear infinite;
+}
+
+.status {
+  font-size: 13px;
+  color: var(--muted);
+  min-height: 18px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes rise {
+  from { opacity: 0; transform: translateY(10px) scale(0.96); }
+  to   { opacity: 1; transform: none; }
+}

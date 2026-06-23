@@ -1,0 +1,30 @@
+{
+  "name": "azure-standard-app",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Unofficial Azure Standard ordering app — native shell around azurestandard.com with push notifications and AdMob wiring.",
+  "scripts": {
+    "sync": "cap sync",
+    "add:ios": "cap add ios",
+    "add:android": "cap add android",
+    "open:ios": "cap open ios",
+    "open:android": "cap open android",
+    "run:ios": "cap run ios",
+    "run:android": "cap run android",
+    "assets": "capacitor-assets generate --iconBackgroundColor '#ffffff' --splashBackgroundColor '#ffffff'"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/app": "^6.0.1",
+    "@capacitor/core": "^6.1.2",
+    "@capacitor/device": "^6.0.1",
+    "@capacitor/ios": "^6.1.2",
+    "@capacitor/push-notifications": "^6.0.2",
+    "@capacitor/splash-screen": "^6.0.2",
+    "@capacitor-community/admob": "^6.1.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^6.1.2"
+  }
+}
