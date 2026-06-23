@@ -47,13 +47,20 @@ async function initPush() {
   const Push = plugin("PushNotifications");
   if (!Push) { console.warn("[push] plugin unavailable"); return; }
 
-  // Token arrives via the 'registration' event.
-  await Push.addListener("registration", (token) => {
+  // The token arrives asynchronously via 'registration'. We must capture AND
+  // send it BEFORE the WebView navigates to the store, otherwise this page's
+  // JS context (and this listener) is torn down and the token is lost.
+  let settle;
+  const tokenSettled = new Promise((resolve) => { settle = resolve; });
+
+  await Push.addListener("registration", async (token) => {
     console.log("[push] token", token.value);
-    sendTokenToBackend(token.value);
+    await sendTokenToBackend(token.value);
+    settle("sent");
   });
   await Push.addListener("registrationError", (err) => {
     console.error("[push] registration error", err);
+    settle("error");
   });
   // Foreground delivery.
   await Push.addListener("pushNotificationReceived", (n) => {
@@ -73,6 +80,13 @@ async function initPush() {
   }
   if (status === "granted") {
     await Push.register(); // fires 'registration' with the device token
+    // Block here until the token has been POSTed — but never longer than 8s,
+    // so a missing token can't trap the user on the splash screen.
+    const outcome = await Promise.race([
+      tokenSettled,
+      new Promise((r) => setTimeout(() => r("timeout"), 8000)),
+    ]);
+    console.log("[push] registration outcome:", outcome);
   } else {
     console.warn("[push] permission not granted:", status);
   }
