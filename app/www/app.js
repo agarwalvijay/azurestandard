@@ -12,9 +12,8 @@ const CONFIG = {
   // The live store the WebView takes over once bootstrap finishes.
   STORE_URL: "https://www.azurestandard.com/",
 
-  // Push backend (see /backend). For LAN testing this is the Mac's WiFi IP;
-  // swap for your deployed HTTPS URL in production.
-  BACKEND_URL: "http://192.168.1.231:8080",
+  // Push backend (deployed on atsumilabs.com behind nginx + Let's Encrypt).
+  BACKEND_URL: "https://azurestandard.atsumilabs.com",
 
   // --- AdMob: wired now, ads OFF until you flip ADS_ENABLED. ---
   // Replace the test IDs with your real AdMob unit IDs when ready.
