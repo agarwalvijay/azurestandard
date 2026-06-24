@@ -15,9 +15,9 @@ const CONFIG = {
   // Push backend (deployed on atsumilabs.com behind nginx + Let's Encrypt).
   BACKEND_URL: "https://azurestandard.atsumilabs.com",
 
-  // Temporary: show a push-registration diagnostic on the splash and pause
-  // there if something fails, instead of silently continuing to the store.
-  DEBUG_PUSH: true,
+  // Show a push-registration diagnostic on the splash and pause there on
+  // failure (instead of silently continuing). Flip on when debugging push.
+  DEBUG_PUSH: false,
 
   // --- AdMob: wired now, ads OFF until you flip ADS_ENABLED. ---
   ADS_ENABLED: false,
