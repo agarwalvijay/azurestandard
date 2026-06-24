@@ -69,6 +69,8 @@ app.get("/health", (_req, res) => res.json({ ok: true }));
 // Legal pages — the app's canonical privacy/terms URLs (used by the Play listing).
 app.get(["/privacy", "/privacy.html"], (_req, res) => res.sendFile(join(__dirname, "legal", "privacy.html")));
 app.get(["/terms", "/terms.html"], (_req, res) => res.sendFile(join(__dirname, "legal", "terms.html")));
+// Account/data deletion page — required by Play Data Safety (URL goes in the listing).
+app.get(["/delete-account", "/delete-account.html", "/delete"], (_req, res) => res.sendFile(join(__dirname, "legal", "delete-account.html")));
 
 app.post("/register", (req, res) => {
   const { token, platform, deviceId } = req.body || {};

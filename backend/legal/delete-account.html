@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Azure Standard (unofficial app) — Delete Your Account &amp; Data · Atsumi Labs</title>
+  <meta name="description" content="How to delete your account and associated data for the unofficial, personal app that wraps azurestandard.com. Not affiliated with Azure Standard." />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#0f1f3d" />
+  <style>
+    :root { --bg:#0f1f3d; --card:#16284a; --ink:#eaf0fb; --muted:#9fb0cf; --accent:#8aa0ff; --line:#2a3c63; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      line-height:1.6; }
+    .wrap { max-width:760px; margin:0 auto; padding:48px 22px 80px; }
+    .pill { display:inline-block; font-size:11px; letter-spacing:.16em; font-weight:700;
+      color:var(--accent); border:1px solid var(--line); border-radius:999px; padding:6px 12px; }
+    h1 { font-size:30px; margin:18px 0 4px; }
+    h2 { font-size:18px; margin:30px 0 6px; color:#fff; }
+    .updated { color:var(--muted); font-size:13px; margin:0 0 22px; }
+    .intro { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; }
+    .step { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin:14px 0; }
+    a { color:var(--accent); }
+    ul { padding-left:20px; }
+    .kicker { color:var(--muted); font-size:13px; letter-spacing:.04em; margin:0 0 4px; }
+    .foot { margin-top:34px; padding-top:18px; border-top:1px solid var(--line); color:var(--muted); font-size:12.5px; }
+    .nav { margin-top:26px; font-size:14px; }
+    .nav a { margin-right:18px; }
+    .cta { display:inline-block; margin-top:8px; background:var(--accent); color:#0f1f3d;
+      font-weight:700; text-decoration:none; border-radius:10px; padding:11px 18px; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <span class="pill">UNOFFICIAL · PERSONAL APP</span>
+    <p class="kicker" style="margin-top:18px;">Azure Standard (unofficial app) · by Atsumi Labs LLC</p>
+    <h1>Delete Your Account &amp; Data</h1>
+    <p class="updated">Last updated: 24 June 2026</p>
+
+    <p class="intro"><strong>This app is unofficial and is not affiliated with, endorsed by, or connected to Azure Standard.</strong> It is a personal convenience app that opens the real azurestandard.com store inside a native shell (a WebView). Your Azure Standard account &mdash; including your username, password, orders, addresses, and payment details &mdash; lives on azurestandard.com and is controlled by Azure Standard, not by this app. This page explains how to delete both your Azure Standard account and the limited data this wrapper app holds.</p>
+
+    <h2>1. Delete your Azure Standard account (your login, orders, payment data)</h2>
+    <div class="step">
+      <p>Your account and everything you enter when shopping (username, password, cart, orders, addresses, payment) are stored by <strong>Azure Standard</strong> under their own systems. To delete that account and its data, contact Azure Standard directly:</p>
+      <ul>
+        <li>Visit <a href="https://www.azurestandard.com" target="_blank" rel="noopener">azurestandard.com</a> and use their Contact / Customer Service options to request account closure and data deletion.</li>
+      </ul>
+      <p>This unofficial app cannot delete your Azure Standard account on your behalf, because it never receives or stores your store credentials, cart, orders, or payment information.</p>
+    </div>
+
+    <h2>2. Delete the data this app holds (push notification token)</h2>
+    <div class="step">
+      <p>The only data this wrapper app stores on its own server is an anonymous <strong>push-notification device token</strong> (used to deliver optional reminders). It identifies a device install, not you personally. You can have it deleted in either of these ways:</p>
+      <ul>
+        <li><strong>Uninstall the app</strong> &mdash; the token stops working and is automatically pruned from our server.</li>
+        <li><strong>Email a deletion request</strong> to <a href="mailto:contact@atsumilabs.com?subject=Delete%20my%20Azure%20Standard%20app%20data">contact@atsumilabs.com</a> with the subject &ldquo;Delete my Azure Standard app data.&rdquo; We will delete the associated token within 30 days.</li>
+      </ul>
+      <a class="cta" href="mailto:contact@atsumilabs.com?subject=Delete%20my%20Azure%20Standard%20app%20data">Request data deletion</a>
+    </div>
+
+    <h2>What gets deleted</h2>
+    <ul>
+      <li>The anonymous push token tied to your device install (deleted; not retained).</li>
+      <li>Any local data on your device (removed when you uninstall the app).</li>
+    </ul>
+    <p>We keep no other personal data about you. We have no analytics, no advertising profiles, and we never sell data.</p>
+
+    <h2>Questions</h2>
+    <p>Email <a href="mailto:contact@atsumilabs.com">contact@atsumilabs.com</a>. For anything about your Azure Standard orders or account, contact Azure Standard directly.</p>
+
+    <div class="nav">
+      <a href="/privacy">Privacy Policy</a>
+      <a href="/terms">Terms of Service</a>
+      <a href="https://atsumilabs.com/azure.html">About the app</a>
+    </div>
+
+    <p class="foot">Unofficial &amp; unaffiliated. &ldquo;Azure Standard&rdquo; and its marks are trademarks of their respective owner; they are referenced only to describe what this personal app opens. Written in plain English and in good faith &mdash; a clear summary, not exhaustive legal advice.</p>
+  </main>
+</body>
+</html>
