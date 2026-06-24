@@ -53,6 +53,17 @@ function saveTokens(map) {
 const app = express();
 app.use(express.json());
 
+// CORS — the app's WebView posts from origin https://localhost (and
+// capacitor://localhost on iOS), a different origin than this server, so the
+// browser requires these headers (and a 204 to the OPTIONS preflight).
+app.use((req, res, next) => {
+  res.set("Access-Control-Allow-Origin", "*");
+  res.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.set("Access-Control-Allow-Headers", "Content-Type, x-admin-key");
+  if (req.method === "OPTIONS") return res.sendStatus(204);
+  next();
+});
+
 app.get("/health", (_req, res) => res.json({ ok: true }));
 
 app.post("/register", (req, res) => {
