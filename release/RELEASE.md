@@ -23,7 +23,7 @@ release/
 
 ## Build facts
 - **applicationId:** com.atsumilabs.azurestandard
-- **versionCode:** 1 · **versionName:** 1.0  (bump versionCode for every future upload)
+- **versionCode:** 2 · **versionName:** 1.0.1  (bump versionCode for every future upload)
 - **minSdk 22 → targetSdk 35**, signed with `azure-release.keystore` (your **upload key** — back it up)
 - No ad SDK. Permissions: INTERNET, CAMERA (scanner), AD_ID (declared, unused), POST_NOTIFICATIONS
 
