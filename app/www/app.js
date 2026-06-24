@@ -15,10 +15,11 @@ const CONFIG = {
   // Push backend (deployed on atsumilabs.com behind nginx + Let's Encrypt).
   BACKEND_URL: "https://azurestandard.atsumilabs.com",
 
+  // Temporary: show a push-registration diagnostic on the splash and pause
+  // there if something fails, instead of silently continuing to the store.
+  DEBUG_PUSH: true,
+
   // --- AdMob: wired now, ads OFF until you flip ADS_ENABLED. ---
-  // Replace the test IDs with your real AdMob unit IDs when ready.
-  // NOTE: the AdMob *App ID* (ca-app-pub-XXX~YYY) is configured in the native
-  // manifests, not here — see README. These are the per-placement *unit* IDs.
   ADS_ENABLED: false,
   AD_UNIT_BANNER_ANDROID: "ca-app-pub-3940256099942544/6300978111", // Google test banner
   AD_UNIT_BANNER_IOS: "ca-app-pub-3940256099942544/2934735716",     // Google test banner
@@ -41,98 +42,148 @@ function platform() {
   return c && typeof c.getPlatform === "function" ? c.getPlatform() : "web";
 }
 
+/* -------------------------------------------------------- diagnostics --- */
+
+const dbg = {
+  platform: "?",
+  plugin: "?",
+  permBefore: "?",
+  permAfter: "?",
+  register: "?",
+  token: "(none)",
+  backend: "(not attempted)",
+  regError: "(none)",
+  sent: false,
+};
+
+function renderDebug() {
+  if (!CONFIG.DEBUG_PUSH) return;
+  let pre = $("debug");
+  if (!pre) {
+    pre = document.createElement("pre");
+    pre.id = "debug";
+    pre.style.cssText =
+      "text-align:left;font-size:11px;line-height:1.5;color:#26412f;background:#eef3ec;" +
+      "border:1px solid #cdddc8;border-radius:8px;padding:10px 12px;margin:14px 16px 0;" +
+      "max-width:520px;white-space:pre-wrap;word-break:break-word;";
+    document.querySelector(".splash").appendChild(pre);
+  }
+  pre.textContent =
+    "PUSH DIAGNOSTIC\n" +
+    "platform     : " + dbg.platform + "\n" +
+    "plugin       : " + dbg.plugin + "\n" +
+    "perm before  : " + dbg.permBefore + "\n" +
+    "perm after   : " + dbg.permAfter + "\n" +
+    "register()   : " + dbg.register + "\n" +
+    "token        : " + dbg.token + "\n" +
+    "backend POST : " + dbg.backend + "\n" +
+    "regError     : " + dbg.regError;
+}
+
+function showContinueButton() {
+  if ($("continueBtn")) return;
+  const b = document.createElement("button");
+  b.id = "continueBtn";
+  b.textContent = "Continue to store →";
+  b.style.cssText =
+    "margin:14px auto 0;display:block;padding:12px 22px;font-size:15px;font-weight:600;" +
+    "color:#fff;background:#6a8f3c;border:none;border-radius:10px;";
+  b.onclick = goToStore;
+  document.querySelector(".splash").appendChild(b);
+}
+
 /* ---------------------------------------------------------------- push --- */
 
 async function initPush() {
+  dbg.platform = platform();
   const Push = plugin("PushNotifications");
-  if (!Push) { console.warn("[push] plugin unavailable"); return; }
+  dbg.plugin = Push ? "present" : "MISSING";
+  renderDebug();
+  if (!Push) return;
 
-  // The token arrives asynchronously via 'registration'. We must capture AND
-  // send it BEFORE the WebView navigates to the store, otherwise this page's
-  // JS context (and this listener) is torn down and the token is lost.
+  // The token arrives asynchronously via 'registration'. Capture AND send it
+  // BEFORE the WebView navigates away, or this page's JS (and this listener)
+  // is torn down and the token is lost.
   let settle;
   const tokenSettled = new Promise((resolve) => { settle = resolve; });
 
   await Push.addListener("registration", async (token) => {
-    console.log("[push] token", token.value);
+    dbg.token = token.value ? token.value.slice(0, 18) + "…(" + token.value.length + ")" : "(empty)";
+    renderDebug();
     await sendTokenToBackend(token.value);
+    dbg.sent = true;
     settle("sent");
   });
   await Push.addListener("registrationError", (err) => {
-    console.error("[push] registration error", err);
+    dbg.regError = (err && (err.error || err.message)) ? (err.error || err.message) : JSON.stringify(err);
+    renderDebug();
     settle("error");
   });
-  // Foreground delivery.
-  await Push.addListener("pushNotificationReceived", (n) => {
-    console.log("[push] received (foreground)", n);
-  });
-  // User tapped a notification — optionally deep-link into the store.
+  await Push.addListener("pushNotificationReceived", (n) => console.log("[push] received", n));
   await Push.addListener("pushNotificationActionPerformed", (action) => {
-    console.log("[push] tapped", action);
     const link = action && action.notification && action.notification.data && action.notification.data.url;
     if (link) window.location.href = link;
   });
 
-  const perm = await Push.checkPermissions();
-  let status = perm.receive;
+  try {
+    dbg.permBefore = (await Push.checkPermissions()).receive;
+  } catch (e) { dbg.permBefore = "check threw: " + e.message; }
+  renderDebug();
+
+  let status = dbg.permBefore;
   if (status === "prompt" || status === "prompt-with-rationale") {
-    status = (await Push.requestPermissions()).receive;
+    try { status = (await Push.requestPermissions()).receive; }
+    catch (e) { status = "request threw: " + e.message; }
   }
+  dbg.permAfter = status;
+  renderDebug();
+
   if (status === "granted") {
-    await Push.register(); // fires 'registration' with the device token
-    // Block here until the token has been POSTed — but never longer than 8s,
-    // so a missing token can't trap the user on the splash screen.
+    try { await Push.register(); dbg.register = "ok"; }
+    catch (e) { dbg.register = "THREW: " + e.message; }
+    renderDebug();
     const outcome = await Promise.race([
       tokenSettled,
-      new Promise((r) => setTimeout(() => r("timeout"), 8000)),
+      new Promise((r) => setTimeout(() => r("timeout"), 10000)),
     ]);
-    console.log("[push] registration outcome:", outcome);
+    if (outcome === "timeout") dbg.token = dbg.token === "(none)" ? "(none — 10s timeout)" : dbg.token;
+    renderDebug();
   } else {
-    console.warn("[push] permission not granted:", status);
+    dbg.register = "skipped (permission " + status + ")";
+    renderDebug();
   }
 }
 
 async function sendTokenToBackend(token) {
   try {
     const Device = plugin("Device");
-    const info = Device ? await Device.getId() : { identifier: null };
-    await fetch(CONFIG.BACKEND_URL + "/register", {
+    let deviceId = null;
+    try { const info = Device ? await Device.getId() : {}; deviceId = info.identifier || info.uuid || null; } catch (_) {}
+    const res = await fetch(CONFIG.BACKEND_URL + "/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        token,
-        platform: platform(),
-        deviceId: info.identifier || info.uuid || null,
-      }),
+      body: JSON.stringify({ token, platform: platform(), deviceId }),
     });
-    console.log("[push] token registered with backend");
+    dbg.backend = "HTTP " + res.status + (res.ok ? " ✓" : " ✗");
   } catch (e) {
-    // Non-fatal: a missing backend must never block the user from shopping.
-    console.warn("[push] backend register failed (non-fatal):", e.message);
+    dbg.backend = "FETCH FAILED: " + e.message;
   }
+  renderDebug();
 }
 
 /* --------------------------------------------------------------- admob --- */
 
 async function initAdMob() {
   const AdMob = plugin("AdMob");
-  if (!AdMob) { console.warn("[admob] plugin unavailable"); return; }
+  if (!AdMob) return;
   try {
     await AdMob.initialize({
-      requestTrackingAuthorization: true, // iOS ATT prompt (IDFA) for future ad targeting
+      requestTrackingAuthorization: true,
       initializeForTesting: !CONFIG.ADS_ENABLED,
     });
-    console.log("[admob] initialized (ads enabled:", CONFIG.ADS_ENABLED + ")");
-
     if (CONFIG.ADS_ENABLED) {
-      const adId = platform() === "ios"
-        ? CONFIG.AD_UNIT_BANNER_IOS
-        : CONFIG.AD_UNIT_BANNER_ANDROID;
-      await AdMob.showBanner({
-        adId,
-        position: "BOTTOM_CENTER",
-        margin: 0,
-      });
+      const adId = platform() === "ios" ? CONFIG.AD_UNIT_BANNER_IOS : CONFIG.AD_UNIT_BANNER_ANDROID;
+      await AdMob.showBanner({ adId, position: "BOTTOM_CENTER", margin: 0 });
     }
   } catch (e) {
     console.warn("[admob] init failed (non-fatal):", e.message);
@@ -147,26 +198,37 @@ function goToStore() {
 }
 
 async function bootstrap() {
-  // In a desktop browser (dev) there are no native plugins — just redirect.
   if (!isNative()) {
     setStatus("Opening store (web preview)…");
     return goToStore();
   }
 
   setStatus("Setting up notifications…");
-  await initPush().catch((e) => console.warn("[push] init failed", e));
+  await initPush().catch((e) => { dbg.regError = "init threw: " + e.message; renderDebug(); });
 
-  setStatus("Finishing setup…");
-  await initAdMob().catch((e) => console.warn("[admob] init failed", e));
+  await initAdMob().catch(() => {});
 
-  // Hide the native splash (if still up) and hand off to the store.
   const Splash = plugin("SplashScreen");
   if (Splash) { try { await Splash.hide(); } catch (_) {} }
+
+  // In debug mode, pause on the splash if registration didn't fully succeed so
+  // the diagnostic stays readable; otherwise continue to the store.
+  if (CONFIG.DEBUG_PUSH && !dbg.sent) {
+    setStatus("Notifications not registered — details below:");
+    renderDebug();
+    showContinueButton();
+    return;
+  }
+
+  if (CONFIG.DEBUG_PUSH && dbg.sent) {
+    setStatus("✓ Notifications registered — opening store…");
+    setTimeout(goToStore, 1500);
+    return;
+  }
 
   goToStore();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Small delay so the brand splash is actually seen on fast devices.
   setTimeout(bootstrap, 700);
 });
