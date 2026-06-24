@@ -18,11 +18,6 @@ const CONFIG = {
   // Show a push-registration diagnostic on the splash and pause there on
   // failure (instead of silently continuing). Flip on when debugging push.
   DEBUG_PUSH: false,
-
-  // --- AdMob: wired now, ads OFF until you flip ADS_ENABLED. ---
-  ADS_ENABLED: false,
-  AD_UNIT_BANNER_ANDROID: "ca-app-pub-3940256099942544/6300978111", // Google test banner
-  AD_UNIT_BANNER_IOS: "ca-app-pub-3940256099942544/2934735716",     // Google test banner
 };
 
 const $ = (id) => document.getElementById(id);
@@ -171,25 +166,6 @@ async function sendTokenToBackend(token) {
   renderDebug();
 }
 
-/* --------------------------------------------------------------- admob --- */
-
-async function initAdMob() {
-  const AdMob = plugin("AdMob");
-  if (!AdMob) return;
-  try {
-    await AdMob.initialize({
-      requestTrackingAuthorization: true,
-      initializeForTesting: !CONFIG.ADS_ENABLED,
-    });
-    if (CONFIG.ADS_ENABLED) {
-      const adId = platform() === "ios" ? CONFIG.AD_UNIT_BANNER_IOS : CONFIG.AD_UNIT_BANNER_ANDROID;
-      await AdMob.showBanner({ adId, position: "BOTTOM_CENTER", margin: 0 });
-    }
-  } catch (e) {
-    console.warn("[admob] init failed (non-fatal):", e.message);
-  }
-}
-
 /* ----------------------------------------------------------- handoff ---- */
 
 function goToStore() {
@@ -205,8 +181,6 @@ async function bootstrap() {
 
   setStatus("Setting up notifications…");
   await initPush().catch((e) => { dbg.regError = "init threw: " + e.message; renderDebug(); });
-
-  await initAdMob().catch(() => {});
 
   const Splash = plugin("SplashScreen");
   if (Splash) { try { await Splash.hide(); } catch (_) {} }

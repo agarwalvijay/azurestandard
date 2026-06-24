@@ -21,11 +21,6 @@
             </intent-filter>
         </activity>
 
-        <!-- AdMob App ID (test ID — replace with your real AdMob App ID before shipping ads) -->
-        <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713" />
-
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -38,6 +33,9 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Advertising ID — declared (kept for possible future ads); no ad SDK ships today. -->
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
 
     <!-- Lets the in-app WebView use the device camera for the site's barcode scanner -->
     <uses-permission android:name="android.permission.CAMERA" />
