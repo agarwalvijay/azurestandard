@@ -66,6 +66,10 @@ app.use((req, res, next) => {
 
 app.get("/health", (_req, res) => res.json({ ok: true }));
 
+// Legal pages — the app's canonical privacy/terms URLs (used by the Play listing).
+app.get(["/privacy", "/privacy.html"], (_req, res) => res.sendFile(join(__dirname, "legal", "privacy.html")));
+app.get(["/terms", "/terms.html"], (_req, res) => res.sendFile(join(__dirname, "legal", "terms.html")));
+
 app.post("/register", (req, res) => {
   const { token, platform, deviceId } = req.body || {};
   if (!token) return res.status(400).json({ error: "token required" });
